@@ -12,10 +12,11 @@ This example uses p5 preload function to create the classifier
 // Classifier Variable
 let classifier;
 // Model URL
-let imageModelURL = 'https://taijin-s.github.io/IMG11524212/';
+let imageModelURL = 'https://teachablemachine.withgoogle.com/models/bXy2kDNi/';
 
 // Video
 let video;
+let flippedVideo;
 // To store the classification
 let label = "";
 
@@ -25,64 +26,45 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(320, 320);
-
-  var constraints = {
-    audio: false,
-    video: {
-     // Create the video
-  var constraints = {
-    audio: false,
-    video: {
-      facingMode: ”environment“
-    }
-  };
-
-  video = createCapture(constraints, function() {
-    classifyVideo();
-  });
-
-  video.size(320, 320);
+  createCanvas(320, 260);
+  // Create the video
+  video = createCapture(VIDEO);
+  video.size(320, 240);
   video.hide();
-}
-  noStroke();
-  textSize(18);
-  textAlign(CENTER, CENTER);
-  text(label, width / 2, height - 20);
+
+  flippedVideo = ml5.flipImage(video)
+  // Start classifying
+  classifyVideo();
 }
 
-// 取得當前視訊畫面的預測結果
-function classifyVideo() {
-  classifier.classify(video, gotResult);
-}
 function draw() {
   background(0);
-
   // Draw the video
-  image(video, 0, 0, width, height);
+  image(flippedVideo, 0, 0);
 
   // Draw the label
-  fill(0, 150);
-  rect(0, height - 40, width, 40);
-
   fill(255);
-  noStroke();
-  textSize(18);
-  textAlign(CENTER, CENTER);
-  text(label, width / 2, height - 20);
+  textSize(16);
+  textAlign(CENTER);
+  text(label, width / 2, height - 4);
 }
 
 // Get a prediction for the current video frame
 function classifyVideo() {
-  classifier.classify(video, gotResult);
+  flippedVideo = ml5.flipImage(video)
+  classifier.classify(flippedVideo, gotResult);
 }
 
 // When we get a result
 function gotResult(error, results) {
+  // If there is an error
   if (error) {
     console.error(error);
     return;
   }
+  // The results are in an array ordered by confidence.
+  // console.log(results[0]);
   label = results[0].label;
+  // Classifiy again!
   classifyVideo();
 }
