@@ -16,7 +16,6 @@ let imageModelURL = 'https://taijin-s.github.io/IMG11524212/';
 
 // Video
 let video;
-let flippedVideo;
 // To store the classification
 let label = "";
 
@@ -31,6 +30,10 @@ function setup() {
   var constraints = {
     audio: false,
     video: {
+     // Create the video
+  var constraints = {
+    audio: false,
+    video: {
       facingMode: ”environment“
     }
   };
@@ -38,22 +41,10 @@ function setup() {
   video = createCapture(constraints, function() {
     classifyVideo();
   });
-  
+
   video.size(320, 320);
   video.hide();
 }
-
-function draw() {
-  background(0);
-  
-  // 繪製視訊畫面
-  image(video, 0, 0, width, height);
-
-  // 繪製辨識結果底圖與文字，讓畫面更清楚
-  fill(0, 150);
-  rect(0, height - 40, width, 40);
-
-  fill(255);
   noStroke();
   textSize(18);
   textAlign(CENTER, CENTER);
@@ -64,14 +55,34 @@ function draw() {
 function classifyVideo() {
   classifier.classify(video, gotResult);
 }
+function draw() {
+  background(0);
 
-// 當收到辨識結果時
+  // Draw the video
+  image(video, 0, 0, width, height);
+
+  // Draw the label
+  fill(0, 150);
+  rect(0, height - 40, width, 40);
+
+  fill(255);
+  noStroke();
+  textSize(18);
+  textAlign(CENTER, CENTER);
+  text(label, width / 2, height - 20);
+}
+
+// Get a prediction for the current video frame
+function classifyVideo() {
+  classifier.classify(video, gotResult);
+}
+
+// When we get a result
 function gotResult(error, results) {
   if (error) {
     console.error(error);
     return;
   }
-  
   label = results[0].label;
   classifyVideo();
 }
