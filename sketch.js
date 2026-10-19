@@ -6,97 +6,78 @@
 /* ===
 ml5 Example
 Webcam Image Classification using a pre-trained customized model and p5.js
-This example uses p5 preload function to create the classifier
 === */
 
 // Classifier Variable
 let classifier;
 // Model URL
-let imageModelURL = 'https://taijin-s.github.io/IMG11524212/';
+let imageModelURL = ’https://taijin-s.github.io/IMG11524212/‘;
 
 // Video
 let video;
-let flippedVideo;
 // To store the classification
-let label = "";
+let label = ”載入模型中...“;
 
 // Load the model first
 function preload() {
-  classifier = ml5.imageClassifier(imageModelURL + 'model.json');
+  classifier = ml5.imageClassifier(imageModelURL + ’model.json‘);
 }
 
 function setup() {
-
   createCanvas(320, 320);
 
-  
-
-  // Create the video
-
-    var constraints = {
-
+  // 建立視訊設定（相容多數裝置）
+  var constraints = {
     audio: false,
-
     video: {
-
-      facingMode: {
-
-        exact: "environment"
-
-      }
-
+      facingMode: ”environment“ // 使用後鏡頭（若電腦測試可改為 video: true）
     }   
-
-    //video: {
-
-      //facingMode: "user"
-
-    //}
-
   };
 
-  video = createCapture(constraints);
-
+  video = createCapture(constraints, function() {
+    // 確保視訊準備好後才開始分類
+    classifyVideo();
+  });
+  
   video.size(320, 320);
-
   video.hide();
-
-  flippedVideo = ml5.flipImage(video)
-
-  // Start classifying
-
-  classifyVideo();
-
 }
 
 function draw() {
   background(0);
-  // Draw the video
-  image(flippedVideo, 0, 0);
+  
+  // 繪製視訊畫面
+  image(video, 0, 0, width, height);
 
-  // Draw the label
+  // 繪製辨識結果外框與文字背景，讓字體更清晰
+  fill(0, 150);
+  rect(0, height - 40, width, 40);
+
+  // 繪製辨識結果標籤
   fill(255);
-  textSize(16);
-  textAlign(CENTER);
-  text(label, width / 2, height - 4);
+  noStroke();
+  textSize(18);
+  textAlign(CENTER, CENTER);
+  text(label, width / 2, height - 20);
 }
 
-// Get a prediction for the current video frame
+// 取得當前視訊畫面的預測結果
 function classifyVideo() {
-  flippedVideo = ml5.flipImage(video)
-  classifier.classify(flippedVideo, gotResult);
+  classifier.classify(video, gotResult);
 }
 
-// When we get a result
+// 當收到辨識結果時
 function gotResult(error, results) {
-  // If there is an error
+  // 如果有錯誤發生
   if (error) {
     console.error(error);
     return;
   }
-  // The results are in an array ordered by confidence.
-  // console.log(results[0]);
+  
+  // 更新標籤
   label = results[0].label;
-  // Classifiy again!
+  
+  // 繼續進行下一次分類
   classifyVideo();
 }
+111
