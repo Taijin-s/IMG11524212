@@ -26,34 +26,21 @@ function preload() {
 }
 
 function setup() {
-
   createCanvas(320, 320);
 
-  
-
-  // Create the video
-
-    var constraints = {
-
-    audio: false,
-
-   // 建立視訊設定（改用彈性指定，避免電腦找不到後鏡頭直接當掉）
   var constraints = {
     audio: false,
     video: {
-      facingMode: ”environment“ 
-    }   
+      facingMode: ”environment“
+    }
   };
 
-  // 確保相機載入成功後才開始分類
   video = createCapture(constraints, function() {
     classifyVideo();
   });
   
   video.size(320, 320);
   video.hide();
-}
-
 }
 
 function draw() {
