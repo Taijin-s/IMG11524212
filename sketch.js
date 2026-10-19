@@ -37,66 +37,54 @@ function setup() {
 
     audio: false,
 
+   // 建立視訊設定（改用彈性指定，避免電腦找不到後鏡頭直接當掉）
+  var constraints = {
+    audio: false,
     video: {
-
-      facingMode: {
-
-        exact: "environment"
-
-      }
-
+      facingMode: ”environment“ 
     }   
-
-    //video: {
-
-      //facingMode: "user"
-
-    //}
-
   };
 
-  video = createCapture(constraints);
-
+  // 確保相機載入成功後才開始分類
+  video = createCapture(constraints, function() {
+    classifyVideo();
+  });
+  
   video.size(320, 320);
-
   video.hide();
-
-  flippedVideo = ml5.flipImage(video)
-
-  // Start classifying
-
-  classifyVideo();
+}
 
 }
 
 function draw() {
   background(0);
-  // Draw the video
-  image(flippedVideo, 0, 0);
+  
+  // 繪製視訊畫面
+  image(video, 0, 0, width, height);
 
-  // Draw the label
+  // 繪製辨識結果底圖與文字，讓畫面更清楚
+  fill(0, 150);
+  rect(0, height - 40, width, 40);
+
   fill(255);
-  textSize(16);
-  textAlign(CENTER);
-  text(label, width / 2, height - 4);
+  noStroke();
+  textSize(18);
+  textAlign(CENTER, CENTER);
+  text(label, width / 2, height - 20);
 }
 
-// Get a prediction for the current video frame
+// 取得當前視訊畫面的預測結果
 function classifyVideo() {
-  flippedVideo = ml5.flipImage(video)
-  classifier.classify(flippedVideo, gotResult);
+  classifier.classify(video, gotResult);
 }
 
-// When we get a result
+// 當收到辨識結果時
 function gotResult(error, results) {
-  // If there is an error
   if (error) {
     console.error(error);
     return;
   }
-  // The results are in an array ordered by confidence.
-  // console.log(results[0]);
+  
   label = results[0].label;
-  // Classifiy again!
   classifyVideo();
 }
